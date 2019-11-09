@@ -32,3 +32,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user_account.set_password(password)
         user_account.save()
         return user_account
+
+
+class ChanagePasswordSerializer(serializers.Serializer):
+    """serializer for password change"""
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
