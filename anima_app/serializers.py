@@ -9,7 +9,7 @@ class UserDataSerializer(serializers.ModelSerializer):
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    confirm_passowrd = serializers.CharField(style={"input_type": "password"}, write_only=True)
+    confirm_password = serializers.CharField(style={"input_type": "password"}, write_only=True)
 
     class Meta:
         model = UserAccount
