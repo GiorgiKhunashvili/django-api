@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
-from .serializers import UserDataSerializer, UserRegistrationSerializer, ChanagePasswordSerializer
+from .serializers import UserDataSerializer, UserRegistrationSerializer, ChanagePasswordSerializer,DeleteUserSerializer
 from .models import UserAccount
 from rest_framework.authtoken.models import Token
 # Create your views here.
@@ -22,7 +22,7 @@ def api_detail_view(request, username):
     # data = json.dumps(data)
     serializer = UserDataSerializer(data)
 
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['PUT', ])
@@ -44,7 +44,7 @@ def api_profile_update_view(request, username):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['PATCH'])
+@api_view(['PATCH', ])
 @permission_classes((IsAuthenticated, ))
 def api_profile_partial_update(request, username):
     try:
@@ -72,23 +72,24 @@ def api_profile_delete_view(request, username):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     user = request.user
-    # serializer = UserDeleteChecker(user_data, data=request.data)
-    # if serializer.is_valid():
-    #     password_data = serializer.validated_data['confirm_password']
-    #     print(user.password)
-    #     if password_data != user.password:
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer = DeleteUserSerializer(data=request.data)
     if user.id != user_data.id:
         return Response({"response": "You dont have permission to access "}, status=status.HTTP_400_BAD_REQUEST)
+
+    if serializer.is_valid():
+
+        check_password = user.check_password(serializer.data.get("password"))
+        if not check_password:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     operation = user_data.delete()
     data = {}
     if operation:
         data["success"] = "deleted successfuly"
-        return Response(data=data)
+        return Response(data=data, status=status.HTTP_200_OK)
     else:
         data["failure"] = "delete failed"
-        return Response(data=data)
+        return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST', ])
@@ -105,7 +106,7 @@ def registration_view(request):
         data['token'] = token
     else:
         data = serializer.errors
-    return Response(data)
+    return Response(data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST', ])
@@ -116,8 +117,10 @@ def api_password_change_view(requset):
 
     if serializer.is_valid():
         # check old passord
-        if not user.check_password(serializer.data.get("old_password")):
-            return Response({"old_password": "wrong password"}, status=status.HTTP_400_BAD_REQUEST)
+        # check_password = bcrypt.checkpw(serializer.data.get("old_password").encode('utf-8'), user.password)
+        check_password = user.check_password(serializer.data.get("old_password"))
+        if check_password==False:
+            return Response({"old_password": "wrong password"}, status=status.HTTP_404_NOT_FOUND)
         # set_password also hashes the password that the user will get
         user.set_password(serializer.data.get("new_password"))
         user.save()

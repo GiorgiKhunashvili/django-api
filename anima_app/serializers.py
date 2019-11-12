@@ -9,7 +9,7 @@ class UserDataSerializer(serializers.ModelSerializer):
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    confirm_password = serializers.CharField(style={"input_type": "password"}, write_only=True)
+    confirm_passowrd = serializers.CharField(style={"input_type": "password"}, write_only=True)
 
     class Meta:
         model = UserAccount
@@ -39,3 +39,7 @@ class ChanagePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
 
+
+class DeleteUserSerializer(serializers.Serializer):
+    """serializer for deleting user"""
+    password = serializers.CharField(required=True)
