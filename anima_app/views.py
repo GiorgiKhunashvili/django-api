@@ -105,7 +105,7 @@ def registration_view(request):
         token = Token.objects.get(user=account).key
         data['token'] = token
     else:
-        data = serializer.errors
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response(data, status=status.HTTP_201_CREATED)
 
 
@@ -120,7 +120,7 @@ def api_password_change_view(requset):
         # check_password = bcrypt.checkpw(serializer.data.get("old_password").encode('utf-8'), user.password)
         check_password = user.check_password(serializer.data.get("old_password"))
         if check_password==False:
-            return Response({"old_password": "wrong password"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"old_password": "wrong password"}, status=status.HTTP_400_BAD_REQUEST)
         # set_password also hashes the password that the user will get
         user.set_password(serializer.data.get("new_password"))
         user.save()

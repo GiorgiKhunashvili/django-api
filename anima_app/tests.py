@@ -22,6 +22,17 @@ class RegistrationTestCase(APITestCase):
         response = self.client.post("/api/register", data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_registration_error(self):
+        data = {
+            "email": "testuser",
+            "username": "dsadasd",
+            "name": "",
+            "password": "spongebob109",
+            "confirm_passowrd": "spongebob"
+        }
+        response = self.client.post("/api/register", data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class GetUserDataTestCase(APITestCase):
     """testing GET method for getting user data after authentication"""
@@ -54,6 +65,13 @@ class GetUserDataTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["name"], "giorgi45")
 
+    def test_update_user_data_error(self):
+        data = {
+            "username": ""
+        }
+        response = self.client.patch(reverse("anima_app:partial_update", kwargs={"username": self.username}), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_change_password(self):
         data = {
             "old_password": "spongebob109",
@@ -62,10 +80,27 @@ class GetUserDataTestCase(APITestCase):
         response = self.client.post(reverse("anima_app:password_change"), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_change_password_error(self):
+        data = {
+            "old_password": "spongebob12",
+            "new_password": "spongebob1099"
+        }
+        response = self.client.post(reverse("anima_app:password_change"), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_delete_user(self):
         data = {
             "password": "spongebob109"
         }
         response = self.client.delete(reverse("anima_app:delete_user", kwargs={"username": self.username}), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_user_error(self):
+        data = {
+            "password": "spongebob12"
+        }
+        response = self.client.delete(reverse("anima_app:delete_user", kwargs={"username": self.username}), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 
