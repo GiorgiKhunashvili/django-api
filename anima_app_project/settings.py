@@ -21,11 +21,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '@6x0w4315m1p$^k1steum!b4ot!_jrx(ti5(e@d9_7qrazdco#'
+# SECRET_KEY = os.environ['SECRET_KEY']
+
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '13.48.182.58']
 
 
 # Application definition
@@ -84,8 +88,12 @@ WSGI_APPLICATION = 'anima_app_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'api',
+        'USER': 'django_api',
+        'PASSWORD': 'django_api',
+        'HOST': 'postgres',
+        'PORT': '5432',
     }
 }
 
