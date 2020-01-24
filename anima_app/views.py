@@ -142,13 +142,15 @@ def api_reset_password(request):
     if serializer.is_valid():
         email = serializer.data.get("email")
         random_str = get_token()
-
-        if UserAccount.objects.filter(email=email).first():
+        user = UserAccount.objects.filter(email=email).first()
+        if user:
             subject = "ANIMA"
             message = f"miha hamodi {random_str}"
             email_from = settings.EMAIL_HOST_USER
             recipient_list = ['giorgi.khunashvili.1@btu.edu.ge',]
             send_mail(subject, message, email_from, recipient_list, fail_silently=False)
+            user.reset_password_token = random_str
+            print(user.reset_password_token)
             return Response("Success", status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
