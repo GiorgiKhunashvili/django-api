@@ -8,6 +8,10 @@ class UserDataSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'username', 'name']
 
 
+class ResetPassowrdEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(style={"input_type": "password"}, write_only=True)
 

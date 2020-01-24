@@ -3,9 +3,16 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
-from .serializers import UserDataSerializer, UserRegistrationSerializer, ChanagePasswordSerializer,DeleteUserSerializer
+from .serializers import (
+    UserDataSerializer, UserRegistrationSerializer, ChanagePasswordSerializer, DeleteUserSerializer,
+    ResetPassowrdEmailSerializer
+)
 from .models import UserAccount
 from rest_framework.authtoken.models import Token
+
+from django.core.mail import send_mail
+from .helper import get_token
+from django.conf import settings
 # Create your views here.
 
 
@@ -119,7 +126,7 @@ def api_password_change_view(requset):
         # check old passord
         # check_password = bcrypt.checkpw(serializer.data.get("old_password").encode('utf-8'), user.password)
         check_password = user.check_password(serializer.data.get("old_password"))
-        if check_password==False:
+        if check_password == False:
             return Response({"old_password": "wrong password"}, status=status.HTTP_400_BAD_REQUEST)
         # set_password also hashes the password that the user will get
         user.set_password(serializer.data.get("new_password"))
@@ -129,6 +136,20 @@ def api_password_change_view(requset):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['POST'])
+def api_reset_password(request):
+    serializer = ResetPassowrdEmailSerializer(data=request.data)
+    if serializer.is_valid():
+        email = serializer.data.get("email")
+        random_str = get_token()
 
+        if UserAccount.objects.filter(email=email).first():
+            subject = "ANIMA"
+            message = f"miha hamodi {random_str}"
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = ['giorgi.khunashvili.1@btu.edu.ge',]
+            send_mail(subject, message, email_from, recipient_list, fail_silently=False)
+            return Response("Success", status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

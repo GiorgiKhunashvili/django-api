@@ -4,26 +4,27 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+import datetime
 # Create your models here.
 
 
 class UserAccountManager(BaseUserManager):
     """Creating Manager for our custom database"""
-    def create_user(self, email, username, name,  password=None):
+    def create_user(self, email, name,  password=None):
         """this function creates users and saves in database"""
         if not email:
             raise ValueError("users must have email!")
 
         email = self.normalize_email(email)
-        user = self.model(email=email, username=username, name=name)
+        user = self.model(email=email, name=name)
         user.set_password(password)
         user.save(using=self._db)
 
         return user
 
-    def create_superuser(self, email, username, name, password):
+    def create_superuser(self, email, name, password):
         """creating super users"""
-        user = self.create_user(email, username, name, password)
+        user = self.create_user(email, name, password)
         user.is_admin = True
         user.is_superuser = True
         user.is_staff = True
@@ -38,13 +39,15 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=30)
     # date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True, null=True, blank=True)
     # last_login = models.DateTimeField(verbose_name='last login', auto_now=True, null=True, blank=True)
+    reset_password_token = models.CharField(max_length=128, null=True)
+    token_sent_time = models.DateField(default=datetime.datetime.now)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['email', 'name']
+    REQUIRED_FIELDS = ['name']
 
     objects = UserAccountManager()
 
