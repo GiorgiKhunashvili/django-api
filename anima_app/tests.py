@@ -16,7 +16,7 @@ class RegistrationTestCase(APITestCase):
             "username": "testuser12333",
             "name": "test",
             "password": "spongebob109",
-            "confirm_passowrd": "spongebob109",
+            "confirm_password": "spongebob109",
         }
 
         response = self.client.post("/api/register", data)

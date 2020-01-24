@@ -35,7 +35,6 @@ class UserAccountManager(BaseUserManager):
 class UserAccount(AbstractBaseUser, PermissionsMixin):
     """Creating custom database for users"""
     email = models.EmailField(max_length=60, unique=True)
-    username = models.CharField(max_length=30, unique=True)
     name = models.CharField(max_length=30)
     # date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True, null=True, blank=True)
     # last_login = models.DateTimeField(verbose_name='last login', auto_now=True, null=True, blank=True)
@@ -44,7 +43,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['email', 'name']
 
     objects = UserAccountManager()

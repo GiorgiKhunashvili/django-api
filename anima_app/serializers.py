@@ -9,11 +9,11 @@ class UserDataSerializer(serializers.ModelSerializer):
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    confirm_passowrd = serializers.CharField(style={"input_type": "password"}, write_only=True)
+    confirm_password = serializers.CharField(style={"input_type": "password"}, write_only=True)
 
     class Meta:
         model = UserAccount
-        fields = ['email', 'username', 'name', 'password', 'confirm_passowrd']
+        fields = ['email', 'username', 'name', 'password', 'confirm_password']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -25,7 +25,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             name=self.validated_data['name']
         )
         password = self.validated_data['password']
-        confirm_password = self.validated_data['confirm_passowrd']
+        confirm_password = self.validated_data['confirm_password']
 
         if password != confirm_password:
             raise serializers.ValidationError({"password": "passwords must match!"})
