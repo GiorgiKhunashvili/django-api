@@ -10,7 +10,7 @@ from .serializers import (
 from .models import UserAccount
 from rest_framework.authtoken.models import Token
 
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from .helper import get_token
 from django.conf import settings
 from django.utils import timezone
@@ -144,11 +144,15 @@ def api_reset_password(request):
         random_str = get_token()
         user = UserAccount.objects.filter(email=email).first()
         if user:
-            subject = "ANIMA"
-            message = f"miha hamodi {random_str}"
-            email_from = settings.EMAIL_HOST_USER
+            subject, email_from = "ANIMA RESET PASSWORD", "info@animachatbotics.com"
+            text_content = "This is an important message"
+            html_content = f"""<h1>Hello {user.name}
+                                <p>this is your secret token <h2><strong>{random_str}</strong></h2></p>
+            """
             recipient_list = [user.email, ]
-            send_mail(subject, message, email_from, recipient_list, fail_silently=False)
+            msg = EmailMultiAlternatives(subject, text_content, email_from, [user.email, ])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
             user.reset_password_token = random_str
             user.token_sent_time = timezone.now()
             user.save()
@@ -187,8 +191,3 @@ def api_reset_password_confirm(request):
         else:
             # token not found
             return Response("reset password request not found", status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-

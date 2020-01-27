@@ -144,8 +144,8 @@ STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'anima_app.UserAccount'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'in-v3.mailjet.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'gkhunashvili109@gmail.com'
-EMAIL_HOST_PASSWORD = 'spongebob109'
+EMAIL_HOST_USER = 'a9972014ecb44457b2d8a408191adcef'
+EMAIL_HOST_PASSWORD = '6301bef285f035a9fcec859684ac7da9'
