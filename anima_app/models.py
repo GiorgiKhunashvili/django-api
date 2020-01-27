@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
-import datetime
+from django.utils import timezone
 # Create your models here.
 
 
@@ -40,7 +40,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     # date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True, null=True, blank=True)
     # last_login = models.DateTimeField(verbose_name='last login', auto_now=True, null=True, blank=True)
     reset_password_token = models.CharField(max_length=128, null=True)
-    token_sent_time = models.DateField(default=datetime.datetime.now)
+    token_sent_time = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)

@@ -6,7 +6,8 @@ from .views import(
     registration_view,
     api_profile_delete_view,
     api_password_change_view,
-    api_reset_password
+    api_reset_password,
+    api_reset_password_confirm
     )
 
 from rest_framework.authtoken.views import obtain_auth_token
@@ -21,6 +22,7 @@ urlpatterns = [
     path('register', registration_view, name="register"),
     path('login', obtain_auth_token, name='login'),
     path('change-password', api_password_change_view, name='password_change'),
-    path('reset-password', api_reset_password, name='password_reset')
+    path('reset-password', api_reset_password, name='password_reset'),
+    path('reset-password-confirm', api_reset_password_confirm, name="password_reset_confirm"),
 
 ]

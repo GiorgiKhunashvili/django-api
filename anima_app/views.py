@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .serializers import (
     UserDataSerializer, UserRegistrationSerializer, ChanagePasswordSerializer, DeleteUserSerializer,
-    ResetPassowrdEmailSerializer
+    ResetPassowrdEmailSerializer, ResetPasswordConfirmSerializer
 )
 from .models import UserAccount
 from rest_framework.authtoken.models import Token
@@ -13,6 +13,7 @@ from rest_framework.authtoken.models import Token
 from django.core.mail import send_mail
 from .helper import get_token
 from django.conf import settings
+from django.utils import timezone
 # Create your views here.
 
 
@@ -107,7 +108,6 @@ def registration_view(request):
         account = serializer.save()
         data['response'] = 'successfully registered a new user'
         data['email'] = account.email
-        data['username'] = account.username
         data['name'] = account.name
         token = Token.objects.get(user=account).key
         data['token'] = token
@@ -147,11 +147,48 @@ def api_reset_password(request):
             subject = "ANIMA"
             message = f"miha hamodi {random_str}"
             email_from = settings.EMAIL_HOST_USER
-            recipient_list = ['giorgi.khunashvili.1@btu.edu.ge',]
+            recipient_list = [user.email, ]
             send_mail(subject, message, email_from, recipient_list, fail_silently=False)
             user.reset_password_token = random_str
+            user.token_sent_time = timezone.now()
+            user.save()
             print(user.reset_password_token)
+            print(user.token_sent_time)
             return Response("Success", status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def api_reset_password_confirm(request):
+    serializer = ResetPasswordConfirmSerializer(data=request.data)
+    if serializer.is_valid():
+        token = serializer.data.get("token")
+        print(token)
+        user = UserAccount.objects.filter(reset_password_token=token).first()
+        print(f'{user} user')
+        print(serializer.data.get("new_password"))
+        if user and user.reset_password_token != "":
+            # checking time out
+            if user.token_sent_time + timezone.timedelta(minutes=30) > timezone.now():
+                # cheking password if mutchs
+                if serializer.data.get("new_password") == serializer.data.get("confirm_password"):
+                    print(serializer.data.get("new_password"))
+                    # setting new password
+                    user.set_password(serializer.data.get("new_password"))
+                    user.reset_password_token = ""
+                    user.save()
+                else:
+                    return Response("passwords don't match", status=status.HTTP_400_BAD_REQUEST)
+                return Response("password was successfully reset", status=status.HTTP_200_OK)
+            else:
+                # time out
+                user.reset_password_token = ""
+                return Response("Time out token not found", status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # token not found
+            return Response("reset password request not found", status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 

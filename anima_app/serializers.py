@@ -12,12 +12,18 @@ class ResetPassowrdEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
 
 
+class ResetPasswordConfirmSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_password = serializers.CharField(required=True)
+
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(style={"input_type": "password"}, write_only=True)
 
     class Meta:
         model = UserAccount
-        fields = ['email', 'username', 'name', 'password', 'confirm_password']
+        fields = ['email', 'name', 'password', 'confirm_password']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -25,7 +31,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def save(self):
         user_account = UserAccount(
             email=self.validated_data['email'],
-            username=self.validated_data['username'],
             name=self.validated_data['name']
         )
         password = self.validated_data['password']
