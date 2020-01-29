@@ -14,7 +14,6 @@ class RegistrationTestCase(APITestCase):
         data = {
             "email": "testuser12333@gmail.com",
             "username": "testuser12333",
-            "name": "test",
             "password": "spongebob109",
             "confirm_password": "spongebob109",
         }
@@ -25,10 +24,9 @@ class RegistrationTestCase(APITestCase):
     def test_registration_error(self):
         data = {
             "email": "testuser",
-            "username": "dsadasd",
-            "name": "",
+            "username": "",
             "password": "spongebob109",
-            "confirm_passowrd": "spongebob"
+            "confirm_password": "spongebob"
         }
         response = self.client.post("/api/register", data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -40,7 +38,6 @@ class GetUserDataTestCase(APITestCase):
     def setUp(self):
         self.user = UserAccount.objects.create_user(email="testuser109@gmail.com",
                                                     username="testuser109",
-                                                    name="testuser",
                                                     password="spongebob109")
         self.token = create_auth_token(sender=self.user, instance=self.user)
         self.username = self.user.username
@@ -59,11 +56,11 @@ class GetUserDataTestCase(APITestCase):
 
     def test_update_user_data(self):
         data = {
-            "name": "giorgi45"
+            "username": "giorgi45"
         }
         response = self.client.patch(reverse("anima_app:partial_update", kwargs={"username": self.username}), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["name"], "giorgi45")
+        self.assertEqual(response.data["username"], "giorgi45")
 
     def test_update_user_data_error(self):
         data = {
@@ -102,5 +99,34 @@ class GetUserDataTestCase(APITestCase):
         response = self.client.delete(reverse("anima_app:delete_user", kwargs={"username": self.username}), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_reset_password_send_email(self):
+        data = {
+            "email": self.user.email
+        }
+        response = self.client.post(reverse("anima_app:password_reset"), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_reset_password_send_email_error(self):
+        data = {
+            "email": "gela@gmail.com"
+        }
+        response = self.client.post(reverse("anima_app:password_reset"), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_reset_password_confirm(self):
+        data = {
+            "token": self.user.reset_password_token,
+            "new_password": "giorgi109",
+            "confirm_password": "giorgi109"
+        }
+        response = self.client.post(reverse("anima_app:password_reset_confirm"), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_reset_password_confirm_error(self):
+        data = {
+            "token": "DSA32FD",
+            "new_password": "girogi109",
+            "confirm_password": "gela109"
+        }
+        response = self.client.post(reverse("anima_app:password_reset_confirm"), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

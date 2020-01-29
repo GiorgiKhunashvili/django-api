@@ -108,7 +108,7 @@ def registration_view(request):
         account = serializer.save()
         data['response'] = 'successfully registered a new user'
         data['email'] = account.email
-        data['name'] = account.name
+        data['username'] = account.username
         token = Token.objects.get(user=account).key
         data['token'] = token
     else:
@@ -146,8 +146,8 @@ def api_reset_password(request):
         if user:
             subject, email_from = "ANIMA RESET PASSWORD", "info@animachatbotics.com"
             text_content = "This is an important message"
-            html_content = f"""<h1>Hello {user.name}
-                                <p>this is your secret token <h2><strong>{random_str}</strong></h2></p>
+            html_content = f"""<h1>Hello {user.username}
+                                <p>this is your code:  <h2><strong>{random_str}</strong></h2></p>
             """
             recipient_list = [user.email, ]
             msg = EmailMultiAlternatives(subject, text_content, email_from, [user.email, ])
@@ -167,16 +167,13 @@ def api_reset_password_confirm(request):
     serializer = ResetPasswordConfirmSerializer(data=request.data)
     if serializer.is_valid():
         token = serializer.data.get("token")
-        print(token)
         user = UserAccount.objects.filter(reset_password_token=token).first()
-        print(f'{user} user')
-        print(serializer.data.get("new_password"))
+
         if user and user.reset_password_token != "":
             # checking time out
             if user.token_sent_time + timezone.timedelta(minutes=30) > timezone.now():
                 # cheking password if mutchs
                 if serializer.data.get("new_password") == serializer.data.get("confirm_password"):
-                    print(serializer.data.get("new_password"))
                     # setting new password
                     user.set_password(serializer.data.get("new_password"))
                     user.reset_password_token = ""
@@ -191,3 +188,4 @@ def api_reset_password_confirm(request):
         else:
             # token not found
             return Response("reset password request not found", status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

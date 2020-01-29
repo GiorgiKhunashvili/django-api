@@ -1,5 +1,6 @@
-import secrets
+import string
+import random
 
 
-def get_token(length=8):
-    return secrets.token_hex(length)
+def get_token(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))

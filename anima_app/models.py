@@ -10,21 +10,21 @@ from django.utils import timezone
 
 class UserAccountManager(BaseUserManager):
     """Creating Manager for our custom database"""
-    def create_user(self, email, name,  password=None):
+    def create_user(self, email, username,  password=None):
         """this function creates users and saves in database"""
         if not email:
             raise ValueError("users must have email!")
 
         email = self.normalize_email(email)
-        user = self.model(email=email, name=name)
+        user = self.model(email=email, username=username)
         user.set_password(password)
         user.save(using=self._db)
 
         return user
 
-    def create_superuser(self, email, name, password):
+    def create_superuser(self, email, username, password):
         """creating super users"""
-        user = self.create_user(email, name, password)
+        user = self.create_user(email, username, password)
         user.is_admin = True
         user.is_superuser = True
         user.is_staff = True
@@ -36,7 +36,7 @@ class UserAccountManager(BaseUserManager):
 class UserAccount(AbstractBaseUser, PermissionsMixin):
     """Creating custom database for users"""
     email = models.EmailField(max_length=60, unique=True)
-    name = models.CharField(max_length=30)
+    username = models.CharField(max_length=30, unique=True)
     # date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True, null=True, blank=True)
     # last_login = models.DateTimeField(verbose_name='last login', auto_now=True, null=True, blank=True)
     reset_password_token = models.CharField(max_length=128, null=True)
@@ -47,17 +47,17 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name']
+    REQUIRED_FIELDS = ['username']
 
     objects = UserAccountManager()
 
     def get_full_name(self):
         """geting full name for django"""
-        return self.name
+        return self.username
 
     def get_short_name(self):
         """geting short name for django"""
-        return self.name
+        return self.username
 
     def __str__(self):
         """string representation"""

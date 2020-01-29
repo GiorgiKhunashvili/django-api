@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'anima_app',
+    'anima_app.apps.AnimaAppConfig',
 ]
 
 REST_FRAMEWORK = {

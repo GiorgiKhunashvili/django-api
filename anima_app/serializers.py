@@ -5,7 +5,7 @@ from .models import UserAccount
 class UserDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
-        fields = ['id', 'email', 'username', 'name']
+        fields = ['id', 'email', 'username']
 
 
 class ResetPassowrdEmailSerializer(serializers.Serializer):
@@ -23,7 +23,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserAccount
-        fields = ['email', 'name', 'password', 'confirm_password']
+        fields = ['email', 'username', 'password', 'confirm_password']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -31,7 +31,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def save(self):
         user_account = UserAccount(
             email=self.validated_data['email'],
-            name=self.validated_data['name']
+            username=self.validated_data['username']
         )
         password = self.validated_data['password']
         confirm_password = self.validated_data['confirm_password']
